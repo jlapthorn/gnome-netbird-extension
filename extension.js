@@ -117,7 +117,7 @@ function addDetailRow(section, label, value) {
 
 const NetBirdToggle = GObject.registerClass(
 class NetBirdToggle extends QuickSettings.QuickMenuToggle {
-    _init(extensionObject) {
+    _init(extensionObject, panelIcon) {
         super._init({
             title: 'NetBird',
             subtitle: 'Checking...',
@@ -125,6 +125,7 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
         });
 
         this._extensionObject = extensionObject;
+        this._panelIcon = panelIcon;
 
         this.menu.setHeader('network-vpn-symbolic', 'NetBird VPN');
 
@@ -173,6 +174,7 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
             this._valueWidgets.session.text = formatSessionExpiry(info.sessionExpires);
             this._valueWidgets.version.text = info.version || '-';
             this._connectItem.label.text = 'Disconnect';
+            this._panelIcon.visible = true;
         } else {
             this._setDisconnectedUI('Disconnected');
         }
@@ -191,6 +193,7 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
         this._valueWidgets.session.text = '-';
         this._valueWidgets.version.text = '-';
         this._connectItem.label.text = 'Connect';
+        this._panelIcon.visible = false;
     }
 
     async _toggleConnection() {
@@ -214,9 +217,12 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
 
 export default class NetBirdExtension extends Extension {
     enable() {
-        this._toggle = new NetBirdToggle(this);
-
         this._indicator = new QuickSettings.SystemIndicator(this);
+        this._panelIcon = this._indicator._addIndicator();
+        this._panelIcon.icon_name = 'network-vpn-symbolic';
+        this._panelIcon.visible = false;
+
+        this._toggle = new NetBirdToggle(this, this._panelIcon);
         this._indicator.quickSettingsItems.push(this._toggle);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
 
