@@ -16,10 +16,11 @@ if ! command -v netbird &>/dev/null; then
 fi
 
 echo "Installing NetBird GNOME extension to ${EXT_DIR}..."
-mkdir -p "${EXT_DIR}"
+mkdir -p "${EXT_DIR}/icons"
 cp "${SCRIPT_DIR}/extension.js" "${EXT_DIR}/"
 cp "${SCRIPT_DIR}/metadata.json" "${EXT_DIR}/"
 cp "${SCRIPT_DIR}/stylesheet.css" "${EXT_DIR}/"
+cp "${SCRIPT_DIR}/icons/netbird-symbolic.svg" "${EXT_DIR}/icons/"
 
 echo "Enabling extension..."
 if gnome-extensions enable "${UUID}" 2>/dev/null; then
