@@ -226,7 +226,7 @@ export default class NetBirdExtension extends Extension {
     enable() {
         this._indicator = new QuickSettings.SystemIndicator(this);
         this._panelIcon = this._indicator._addIndicator();
-        this._panelIcon.gicon = getNetbirdIcon(this.path);
+        this._panelIcon.icon_name = 'network-vpn-symbolic';
         this._panelIcon.visible = false;
 
         this._toggle = new NetBirdToggle(this, this._panelIcon);
