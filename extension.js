@@ -10,6 +10,11 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 const REFRESH_INTERVAL_SECONDS = 15;
 
+function getNetbirdIcon(extensionPath) {
+    const iconPath = GLib.build_filenamev([extensionPath, 'icons', 'netbird-symbolic.svg']);
+    return Gio.icon_new_for_string(iconPath);
+}
+
 function parseNetbirdStatus(output) {
     const info = {};
     const lines = output.split('\n');
@@ -118,16 +123,18 @@ function addDetailRow(section, label, value) {
 const NetBirdToggle = GObject.registerClass(
 class NetBirdToggle extends QuickSettings.QuickMenuToggle {
     _init(extensionObject, panelIcon) {
+        const nbIcon = getNetbirdIcon(extensionObject.path);
         super._init({
             title: 'NetBird',
             subtitle: 'Checking...',
-            iconName: 'network-vpn-symbolic',
+            gicon: nbIcon,
         });
 
         this._extensionObject = extensionObject;
         this._panelIcon = panelIcon;
+        this._nbIcon = nbIcon;
 
-        this.menu.setHeader('network-vpn-symbolic', 'NetBird VPN');
+        this.menu.setHeader(nbIcon, 'NetBird VPN');
 
         this._detailsSection = new PopupMenu.PopupMenuSection();
         this._valueWidgets = {};
@@ -164,7 +171,7 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
         if (info.connected) {
             this.checked = true;
             this.subtitle = `${info.peers || '?'} peers`;
-            this.iconName = 'network-vpn-symbolic';
+            this.gicon = this._nbIcon;
             this._valueWidgets.status.text = 'Connected';
             this._valueWidgets.ip.text = info.ip || '-';
             this._valueWidgets.fqdn.text = info.fqdn || '-';
@@ -183,7 +190,7 @@ class NetBirdToggle extends QuickSettings.QuickMenuToggle {
     _setDisconnectedUI(statusText) {
         this.checked = false;
         this.subtitle = 'Disconnected';
-        this.iconName = 'network-vpn-disabled-symbolic';
+        this.gicon = this._nbIcon;
         this._valueWidgets.status.text = statusText;
         this._valueWidgets.ip.text = '-';
         this._valueWidgets.fqdn.text = '-';
@@ -219,7 +226,7 @@ export default class NetBirdExtension extends Extension {
     enable() {
         this._indicator = new QuickSettings.SystemIndicator(this);
         this._panelIcon = this._indicator._addIndicator();
-        this._panelIcon.icon_name = 'network-vpn-symbolic';
+        this._panelIcon.gicon = getNetbirdIcon(this.path);
         this._panelIcon.visible = false;
 
         this._toggle = new NetBirdToggle(this, this._panelIcon);
